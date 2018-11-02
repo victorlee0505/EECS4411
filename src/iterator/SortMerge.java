@@ -118,7 +118,7 @@ public class SortMerge extends Iterator implements GlobalConst {
 	private Tuple join_table;
 	private int join_size;
 	private Heapfile join_heapfile;
-	private Rid rid;
+	private RID rid;
 
     public SortMerge(
         AttrType    in1[], 
@@ -188,11 +188,19 @@ public class SortMerge extends Iterator implements GlobalConst {
     	//Iterate for Join/Merge
     	
     	//Set up Tuples , join_tuple is container for matched tuple
-    	// 				  join_heapfile is to insertRecord(join_tuple.returnTupleByteArray())
+    	// 				  join_heapfile is to insertRecord(join_table.returnTupleByteArray())
     	
     	join_tuple = new Tuple();
-    	join_table = new Tuple(join_size);
     	join_heapfile = new Heapfile("joinRS.in");
+    	
+    	join_table = new Tuple(join_size);
+    	
+    	// need to setup attrtype and attrsize for the joined tuple, 
+    	// then push each join_tuple into join_table
+    	
+    	//loop body
+    	
+    	//  rid = join_heapfile.insertRecord(join_table.returnTupleByteArray())
     	
     	
     		
@@ -201,7 +209,7 @@ public class SortMerge extends Iterator implements GlobalConst {
     	}
     	
     
-    } // End of SortMerge constructor
+     // End of SortMerge constructor
 
 /*--------------------------------------------------------------------------*/
     /**
