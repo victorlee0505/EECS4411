@@ -113,39 +113,70 @@ public class SortMerge extends Iterator implements GlobalConst {
      *@exception Exception                   Generic
      */
 	
-	private Iterator itr_am1, itr_am2;
-	private Tuple tuple_am1, tuple_am2, join_tuple;
-	private Tuple join_table;
-	private int join_size;
-	private Heapfile join_heapfile;
-	private RID rid;
+	// Copy parameter from constructor signature
+	private AttrType 	in1[];
+    private int         len_in1;                       
+    private short       s1_sizes[];
+    
+    private AttrType    in2[];                
+    private int         len_in2;                        
+    private short       s2_sizes[];
 
+    private int         join_col_in1;                
+    private int         sortFld1Len;
+    private int         join_col_in2;                
+    private int         sortFld2Len;
+
+    private int         amt_of_mem;               
+    private Iterator    am1, am2;                
+               
+
+    private boolean     in1_sorted;                
+    private boolean     in2_sorted;                
+    private TupleOrder  order;
+
+    private CondExpr    outFilter[];            
+    private FldSpec     proj_list[];
+    private int         n_out_flds;
+    
+    private Tuple Jtuple;
+    private AttrType Jtypes[];
+    private short Jsizes[];
+    private AttrType JfldType;
+    
+    private Tuple tuple1;
+    private Tuple tuple2;
+    
+    
+    
+	
+	
     public SortMerge(
-        AttrType    in1[], 
-        int         len_in1,                        
-        short       s1_sizes[],
-        
-        AttrType    in2[],                
-        int         len_in2,                        
-        short       s2_sizes[],
+            AttrType    in1[], 
+            int         len_in1,                        
+            short       s1_sizes[],
+            
+            AttrType    in2[],                
+            int         len_in2,                        
+            short       s2_sizes[],
 
-        int         join_col_in1,                
-        int         sortFld1Len,
-        int         join_col_in2,                
-        int         sortFld2Len,
+            int         join_col_in1,                
+            int         sortFld1Len,
+            int         join_col_in2,                
+            int         sortFld2Len,
 
-        int         amt_of_mem,               
-        Iterator    am1,                
-        Iterator    am2,                
+            int         amt_of_mem,               
+            Iterator    am1,                
+            Iterator    am2,                
 
-        boolean     in1_sorted,                
-        boolean     in2_sorted,                
-        TupleOrder  order,
+            boolean     in1_sorted,                
+            boolean     in2_sorted,                
+            TupleOrder  order,
 
-        CondExpr    outFilter[],                
-        FldSpec     proj_list[],
-        int         n_out_flds
-    )
+            CondExpr    outFilter[],                
+            FldSpec     proj_list[],
+            int         n_out_flds
+        )
     throws JoinNewFailed ,
         JoinLowMemory,
         SortException,
@@ -163,39 +194,93 @@ public class SortMerge extends Iterator implements GlobalConst {
         Exception
     {
     	
+    	this.in1 = in1;
+        this.len_in1 = len_in1;                       
+        this.s1_sizes = s1_sizes;
+        
+        this.in2 = in2;                
+        this.len_in2 = len_in2;                        
+        this.s2_sizes = s2_sizes;
+
+        this.join_col_in1 = join_col_in1;                
+        this.sortFld1Len = sortFld1Len;
+        this.join_col_in2 = join_col_in2;                
+        this.sortFld2Len = sortFld2Len;
+
+        this.amt_of_mem = amt_of_mem;               
+        //this.am1 = am1;
+        //this.am2 = am2;                
+                   
+
+        this.in1_sorted = in1_sorted;                
+        this.in2_sorted = in2_sorted;                
+        this.order = order;
+
+        this.outFilter = outFilter;            
+        this.proj_list = proj_list;
+        this.n_out_flds = n_out_flds;
+
+    	
+    	
     	// External sort if file is not sorted
     	if(in1_sorted) {
     		
-    		itr_am1 = am1;
+    		this.am1 = am1;
     	}
     	else {
     	
     		//TRY CATCH SortException
-    		itr_am1 = new Sort(in1, (short) len_in1, s1_sizes, am1, join_col_in1, order, sortFld1Len, amt_of_mem);
+    		this.am1 = new Sort(in1, (short) len_in1, s1_sizes, am1, join_col_in1, order, sortFld1Len, amt_of_mem);
     		
     	}
     	
     	if(in2_sorted) {
-        	itr_am1 = am2;
+        	this.am2 = am2;
     	}
     	else {
     		    		
     		//TRY CATCH SortException
-    		itr_am2 = new Sort(in1, (short) len_in1, s1_sizes, am1, join_col_in1, order, sortFld1Len, amt_of_mem);
+    		this.am2 = new Sort(in2, (short) len_in2, s2_sizes, am2, join_col_in2, order, sortFld1Len, amt_of_mem);
     		
     	}
     	
     	//Iterate for Join/Merge
     	
     	//Set up Tuples , join_tuple is container for matched tuple
-    	// 				  join_heapfile is to insertRecord(join_table.returnTupleByteArray())
-    	
-    	join_tuple = new Tuple();
-    	join_heapfile = new Heapfile("joinRS.in");
-    	
-    	join_table = new Tuple(join_size);
-    	
     	// need to setup attrtype and attrsize for the joined tuple, 
+    	// join_heapfile is to insertRecord(join_table.returnTupleByteArray())
+    	
+    	Jtuple = new Tuple();
+    	Jtypes = new AttrType[n_out_flds];
+    	Jsizes = null;
+    	short[]    ts_size = null;
+    	
+    	//join_heapfile = new Heapfile("joinRS.in");
+    	
+    	//join_table = new Tuple(join_size);
+    	
+    	//AttrType[] Jtypes = new AttrType[n_out_flds];
+        //short[]    ts_size = null;
+
+        try {
+        		ts_size = TupleUtils.setup_op_tuple(Jtuple, Jtypes,
+  					    in1, len_in1, in2, len_in2,
+  					    s1_sizes, s2_sizes, 
+  					    proj_list,n_out_flds );
+        }catch (Exception e){
+        	throw new TupleUtilsException (e, "TupleUtilsException");
+        }
+        
+        try {
+        	
+        	tuple1.setHdr((short)len_in1, in1, s1_sizes);
+        	tuple2.setHdr((short)len_in2, in2, s2_sizes);
+        	
+              }catch (Exception e){
+        	throw new SortException (e,"Set header failed");
+              }
+        
+    	
     	// then push each join_tuple into join_table
     	
     	//loop body
@@ -204,7 +289,7 @@ public class SortMerge extends Iterator implements GlobalConst {
     	
     	
     		
-    		
+    		JfldType = in1[join_col_in1 - 1];
     		
     	}
     	
@@ -277,6 +362,34 @@ public class SortMerge extends Iterator implements GlobalConst {
            UnknownKeyTypeException,
            Exception
     {
+    	
+    	tuple1 = am1.get_next();
+    	tuple2 = am2.get_next();
+    	
+    	
+    	if(order.equals(TupleOrder.Ascending)) {
+    	
+	    	while( tuple1 != null || tuple2 != null) {
+	    		
+	    		//CompareTupleWithTuple:  returns: 0 if the two are equal, 1 if the tuple is greater, -1 if the tuple is smaller,
+	    		while (TupleUtils.CompareTupleWithTuple( JfldType, tuple1, join_col_in1, tuple2, join_col_in2) == -1  ) {
+	    			//Tr < Ts , increment Tr
+	    			tuple1 = am1.get_next();
+	    			
+	    		}
+	    		
+	    			
+	    			
+	    		while (TupleUtils.CompareTupleWithTuple( JfldType, tuple1, join_col_in1, tuple2, join_col_in2) == 1 ) {
+	    			//Tr > Ts, increment Ts
+	    			tuple2 = am2.get_next();
+	    		}
+	    		
+	    		
+	    	}
+    		
+    	}
+    	
 		return null;
 		    
     } // End of get_next
