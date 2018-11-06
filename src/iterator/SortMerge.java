@@ -52,7 +52,7 @@ public class SortMerge extends Iterator implements GlobalConst {
     private Heapfile temp_fd1;
     private Heapfile temp_fd2;
     
-    CondExpr  outFilter[];
+    private CondExpr  outFilter[];
     
     int nOutFlds;
     
@@ -149,10 +149,13 @@ public class SortMerge extends Iterator implements GlobalConst {
         Exception
     {
     	
-    	this.in1 = new AttrType[in1.length];
+/*    	this.in1 = new AttrType[in1.length];
         this.in2 = new AttrType[in2.length];
         System.arraycopy(in1,0,this.in1,0,in1.length);
-        System.arraycopy(in2,0,this.in2,0,in2.length);
+        System.arraycopy(in2,0,this.in2,0,in2.length);*/
+    
+    	this.in1 = in1;
+    	this.in2 = in2;
     	
     	this.sortType = in1[join_col_in1 - 1];
     	this.join_col_in1 = join_col_in1;
@@ -166,7 +169,7 @@ public class SortMerge extends Iterator implements GlobalConst {
     	if(in2_sorted) {
     		this.am2 = am2;
     	} else {
-    		this.am2 = new Sort(in2, (short) len_in2, s2_sizes, am2, join_col_in2, order, sortFld1Len, amt_of_mem);
+    		this.am2 = new Sort(in2, (short) len_in2, s2_sizes, am2, join_col_in2, order, sortFld2Len, amt_of_mem);
     	}
     	
     	tuple1 = new Tuple();
@@ -182,6 +185,7 @@ public class SortMerge extends Iterator implements GlobalConst {
         catch (Exception e){
         	throw new SortException (e,"Set header failed");
         	}
+        
 
         this.order = order;
         
@@ -213,7 +217,7 @@ public class SortMerge extends Iterator implements GlobalConst {
 			    s1_sizes, s2_sizes, 
 			    proj_list,n_out_flds );
     	
-        // condition for get_next()
+        // initialize condition for get_next()
         firstrun = true;
         exhausted = false;
     	
@@ -293,19 +297,20 @@ public class SortMerge extends Iterator implements GlobalConst {
     		
     		// firstrun to get tuple1 & 2
     		if(firstrun) {
-    			if(!readTuple(tuple1, am1))
+    			if(!readTuple(tuple1, this.am1))
     				return null;
-    			if(!readTuple(tuple2, am2))
+    			if(!readTuple(tuple2, this.am2))
     				return null;
         		firstrun = false;
     		}
-    		
+    		    		
 
     		if(exhausted == true) {
     			firstrun = true;
     			exhausted = false;
     			return null;
     		}
+
     		
     		compareTuple = TupleUtils.CompareTupleWithTuple(sortType, tuple1, join_col_in1, tuple2, join_col_in2);
     		
@@ -313,7 +318,7 @@ public class SortMerge extends Iterator implements GlobalConst {
     				(compareTuple > 0 && order.tupleOrder == TupleOrder.Descending)) {
     			
     			if(!readTuple(tuple1, am1)) {
-    				//exhausted = true;
+    				exhausted = true;
     				return null;
     			}
     					
@@ -326,7 +331,7 @@ public class SortMerge extends Iterator implements GlobalConst {
     				(compareTuple < 0 && order.tupleOrder == TupleOrder.Descending)) {
     			
     			if(!readTuple(tuple2, am2)) {
-    				//exhausted = true;
+    				exhausted = true;
     				return null;
     			}
     			
@@ -386,10 +391,10 @@ public class SortMerge extends Iterator implements GlobalConst {
 	  	      }
 		      	
  
-/*	  	      // check whether or not io_buf1 is empty
+	  	      // check whether or not io_buf1 is empty
 	  	      if (io_buf1.Get(tempTuple1) == null) {
 	  	    	  System.out.println( "Equiv. class 1 in sort-merge has no tuples");
-	  	    	  continue;
+	  	    	  //continue;
 	  	      }
 	  	      
 	  	      // if io_buf2 is empty means there is no same value with tuple2 in relation2
@@ -401,7 +406,7 @@ public class SortMerge extends Iterator implements GlobalConst {
 	  	    		  io_buf2.reread();
 	  	    		  io_buf2.Get(tempTuple2);
 	  	    	  }
-	  	      }*/
+	  	      }
     		
   	      
 	  	      // check whether or not current tuple1 and tuple2 can join
@@ -433,8 +438,8 @@ public class SortMerge extends Iterator implements GlobalConst {
     	 if (!closeFlag) {
     			
     			try {
-    			  am1.close();
-    			  am2.close();
+    			  this.am1.close();
+    			  this.am2.close();
     			}catch (Exception e) {
     			  throw new JoinsException(e, "SortMerge.java: error in closing iterator.");
     			}
