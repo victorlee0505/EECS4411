@@ -26,8 +26,6 @@ public class SortMerge extends Iterator implements GlobalConst {
 	private AttrType sortType;
 	private Iterator am1;
 	private Iterator am2;
-//	private boolean in1_sorted;
-//	private boolean in2_sorted;
 	
 	private int join_col_in1;
 	private int join_col_in2;
@@ -61,10 +59,10 @@ public class SortMerge extends Iterator implements GlobalConst {
     private boolean firstrun;
     private boolean exhausted;
     
-    private    boolean process_next_block;
-    private boolean done;
-    private boolean get_from_in1;
-    private boolean get_from_in2;
+    private boolean process_next_block;
+    
+    private boolean goodTuple;
+
     
 
 	
@@ -149,15 +147,17 @@ public class SortMerge extends Iterator implements GlobalConst {
         Exception
     {
     	
-/*    	this.in1 = new AttrType[in1.length];
+    	this.in1 = new AttrType[in1.length];
         this.in2 = new AttrType[in2.length];
         System.arraycopy(in1,0,this.in1,0,in1.length);
-        System.arraycopy(in2,0,this.in2,0,in2.length);*/
+        System.arraycopy(in2,0,this.in2,0,in2.length);
     
-    	this.in1 = in1;
-    	this.in2 = in2;
+    	//this.in1 = in1;
+    	//this.in2 = in2;
     	
     	this.sortType = in1[join_col_in1 - 1];
+    	
+    	
     	this.join_col_in1 = join_col_in1;
     	this.join_col_in2 = join_col_in2;
     	
@@ -220,6 +220,7 @@ public class SortMerge extends Iterator implements GlobalConst {
         // initialize condition for get_next()
         firstrun = true;
         exhausted = false;
+        goodTuple = false;
     	
     	
     } // End of SortMerge constructor
@@ -291,7 +292,8 @@ public class SortMerge extends Iterator implements GlobalConst {
            Exception
     {
     	int compareTuple;
-    	int comp_res;
+    	
+    	//int comp_res;
     	    	    	
     	// while one of am1 or am2 is exhausted, exit loop and return null
     	while(true) {
@@ -328,8 +330,15 @@ public class SortMerge extends Iterator implements GlobalConst {
     		 *  my IF statement does not, and simply return NULL
     		 */
     		
+    		if (goodTuple == false) {
+    			
+    			goodTuple = true;
+    			
+    		
     		// firstrun to get tuple1 & 2
     		if(firstrun) {
+    			
+    			//System.out.println("firstrun");
     			if(!readTuple(tuple1, this.am1))
     				return null;
     			if(!readTuple(tuple2, this.am2))
@@ -339,19 +348,24 @@ public class SortMerge extends Iterator implements GlobalConst {
     		    		
 
     		if(exhausted == true) {
+    			//System.out.println("exhausted");
     			firstrun = true;
     			exhausted = false;
     			return null;
     		}
     		
+    		//System.out.println("While True loop");
+    		
+    		
     		compareTuple = TupleUtils.CompareTupleWithTuple(sortType, tuple1, join_col_in1, tuple2, join_col_in2);
     		
     		while ((compareTuple < 0 && order.tupleOrder == TupleOrder.Ascending) ||
     				(compareTuple > 0 && order.tupleOrder == TupleOrder.Descending)) {
-    			
+    			//System.out.println("loop a1");
     			if(!readTuple(tuple1, am1)) {
-    				exhausted = true;
+    				//exhausted = true;
     				return null;
+
     			}
     					
     			compareTuple = TupleUtils.CompareTupleWithTuple(sortType, tuple1,
@@ -361,21 +375,22 @@ public class SortMerge extends Iterator implements GlobalConst {
     		
     		while ((compareTuple > 0 && order.tupleOrder == TupleOrder.Ascending) ||
     				(compareTuple < 0 && order.tupleOrder == TupleOrder.Descending)) {
-    			
+    			//System.out.println("loop a2");
     			if(!readTuple(tuple2, am2)) {
-    				exhausted = true;
+    				//exhausted = true;
     				return null;
+
     			}
     			
     			compareTuple = TupleUtils.CompareTupleWithTuple(sortType, tuple1,
         				join_col_in1, tuple2, join_col_in2);
     		}
     		
-    		
+    		//System.out.println(compareTuple);
     		
     		//if matches not found
     		if(compareTuple != 0) {
-    			
+    			goodTuple = false;
     			continue;
     			// skip to next iteration
     		}
@@ -393,6 +408,7 @@ public class SortMerge extends Iterator implements GlobalConst {
 	  	      	
 	    		// group same value and save to io_buf
 	  	      	while (TupleUtils.CompareTupleWithTuple(sortType, tuple1, join_col_in1, tempTuple1, join_col_in1) == 0) {
+	  	      		//System.out.println("io_buf1 loop b1");
 	  	      		// insert tuple1 into io_buf1
 	  	      		try {
 	  	      			io_buf1.Put(tuple1);
@@ -409,6 +425,7 @@ public class SortMerge extends Iterator implements GlobalConst {
 	  	      	
 	  	      while (TupleUtils.CompareTupleWithTuple(sortType, tuple2, join_col_in2, tempTuple2, join_col_in2) == 0) {
 		      		// insert tuple2 into io_buf2
+	  	    	//System.out.println("io_buf2 loop b2");
 		      		try {
 		      			io_buf2.Put(tuple2);
 		      		}
@@ -426,30 +443,41 @@ public class SortMerge extends Iterator implements GlobalConst {
 	  	      // check whether or not io_buf1 is empty
 	  	      if (io_buf1.Get(tempTuple1) == null) {
 	  	    	  System.out.println( "Equiv. class 1 in sort-merge has no tuples");
-	  	    	  //continue;
+	  	    	  continue;
 	  	      }
+    		}
+
+	  	      
+/***********************/
 	  	      
 	  	      // if io_buf2 is empty means there is no same value with tuple2 in relation2
 	  	      if (io_buf2.Get(tempTuple2) == null) {
 	  	    	  // 
 	  	    	  if (io_buf1.Get(tempTuple1) == null) {
-	  	    		  continue;                                // check next tuple
+	  	    		  //System.out.println("io if null");
+	  	    		goodTuple = false;
+	  	    		continue;
 	  	    	  } else {
 	  	    		  io_buf2.reread();
 	  	    		  io_buf2.Get(tempTuple2);
 	  	    	  }
 	  	      }
-    		
-  	      
+	  	      
+	  	      //System.out.println("PreEval: "+ PredEval.Eval(outFilter, tempTuple1, tempTuple2, in1, in2));
 	  	      // check whether or not current tuple1 and tuple2 can join
 	  	      // if it can, result stores in jTuple and return
 	  	      if (PredEval.Eval(outFilter, tempTuple1, tempTuple2, in1, in2) == true) {
 	  	    	  Projection.Join(tempTuple1, in1, tempTuple2, in2, Jtuple, fldSpecs, nOutFlds);
+	  	    	  //System.out.println("return Jtuple");
 
-    			return Jtuple;
+	  	    	  goodTuple = true;
+	  	    	  return Jtuple;
+	  	      }else {
+	  	    	  //goodTuple = false;
 	  	      }
 
     	}
+    	
 
     } // End of get_next
 
