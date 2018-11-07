@@ -291,9 +291,42 @@ public class SortMerge extends Iterator implements GlobalConst {
            Exception
     {
     	int compareTuple;
+    	int comp_res;
     	    	    	
     	// while one of am1 or am2 is exhausted, exit loop and return null
     	while(true) {
+    		
+    		/** This part of condition is not working as intended
+    		 *  If the condition to terminate the loop needed to be fixed
+    		 *  But I have no clue HOW.
+    		 *  
+    		 *  Observation: In the answer code, 
+    		 *    IF 
+    		 *  	1. process_next_block is true 
+    		 *  	   (a. FirstRun, 
+    		 *  		b. when compareTuple != 0 	(line 310)
+    		 *  		c. io_buf == null 			(line 372)
+    		 *  
+    		 *  	IF  (get_from_in1) : Flag from while (put tuple 1 to IO_buf ) == null  (line 334)
+    		 *  		2. tuple1.get_next() == null
+    		 *  			return NULL
+    		 *  
+    		 *  	IF  (get_from_in2) : Flag from while (put tuple2 to IO_buf ) == null	(line 352)
+    		 *  		3. tuple2.get_next() ==null
+    		 *  			return NULL
+    		 *  	
+    		 *  		*these 2 IF for tuple1 & 2 sound like just return NULL if one of them is NULL
+    		 * 
+    		 *  
+    		 *  From my understanding, 
+    		 *  I need to stop the loop as soon as one of the tuple.get_next() == NULL
+    		 *  I put boolean exhausted to flag when get_next() == NULL and return null in next iteration
+    		 *  
+    		 *  So what i did is I flag exhausted = true whenever get_next() == null (either tuple)
+    		 *  Clearly i am missing something that i did not catch.
+    		 *  one difference is that his IF statement extended until io_buf
+    		 *  my IF statement does not, and simply return NULL
+    		 */
     		
     		// firstrun to get tuple1 & 2
     		if(firstrun) {
@@ -310,7 +343,6 @@ public class SortMerge extends Iterator implements GlobalConst {
     			exhausted = false;
     			return null;
     		}
-
     		
     		compareTuple = TupleUtils.CompareTupleWithTuple(sortType, tuple1, join_col_in1, tuple2, join_col_in2);
     		
