@@ -1,0 +1,26 @@
+Project #1: Merge Join
+
+Group members:
+Ka Chun Lee :210087484 (prism: viclee)
+Bochao Wang:215237902 (prism: bochao)
+
+We started off the project by discussing the general idea of the algorithm
+and consult with the textbook on P.458.
+
+We decided to work on our own and collaborate later. 
+Therefore, we both have even contribution thoughout the project.
+
+The most challenge part of the project is to debug in order to pass the test cases, especially query 2.
+it took us days to compile the project and more days to pass test cases.
+
+The usage and behavior of IO buffer is not obvious, as the operation is behind the scene.
+We need to set and pin point many conditions to control the flow of the get_next() while loop body.
+and we discovered the io_buf caused problem which failed query 2 miserably.
+After many nights and re-writing the get_next() method, somehow it worked.....
+It must be we hadn't catch the flow of the loop under certain condition in many-many join.
+
+End of Report
+
+
+
+
