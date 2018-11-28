@@ -1,0 +1,161 @@
+DB2 Universal Database Version 11.1, 5622-044 (c) Copyright IBM Corp. 1991, 2015
+Licensed Material - Program Property of IBM
+IBM DB2 Universal Database SQL and XQUERY Explain Tool
+
+******************** DYNAMIC ***************************************
+
+==================== STATEMENT ==========================================
+
+Error compiling statement:
+
+SQL0104N  An unexpected token "to" was found following "connect ".  
+Expected tokens may include:  "JOIN <joined_table>".  SQLSTATE=42601
+
+
+Statement:
+  connect to STL
+
+
+==================== STATEMENT ==========================================
+
+	Isolation Level          = Cursor Stability
+	Blocking                 = Block All Cursors
+	Query Optimization Class = 5
+
+	Partition Parallel       = No
+	Intra-Partition Parallel = No
+
+	SQL Path                 = "SYSIBM", "SYSFUN", "SYSPROC", "SYSIBMADM", 
+                                   "VICLEE"
+
+
+Statement:
+  
+  select P.cust#, count(P.book#)as BOOKS_OWN 
+  from stl.Purchase P 
+  where P.cust# between '1' and '20' 
+  group by P.cust# 
+  order by BOOKS_OWN DESC
+
+
+Section Code Page = 1208
+
+Estimated Cost = 136.290985
+Estimated Cardinality = 20.956352
+
+Access Table Name = STL.PURCHASE  ID = 2,277
+|  Index Scan:  Name = STL.PURCHASE_PK  ID = 1
+|  |  Regular Index (Not Clustered)
+|  |  Index Columns:
+|  |  |  1: CUST# (Ascending)
+|  |  |  2: BOOK# (Ascending)
+|  |  |  3: WHEN (Ascending)
+|  #Columns = 1
+|  Skip Inserted Rows
+|  Avoid Locking Committed Data
+|  Currently Committed for Cursor Stability
+|  #Key Columns = 1
+|  |  Start Key: Inclusive Value
+|  |  |  1: 1 
+|  |  Stop Key: Inclusive Value
+|  |  |  1: 20 
+|  Index-Only Access
+|  Index Prefetch: Sequential(17), Readahead
+|  Lock Intents
+|  |  Table: Intent Share
+|  |  Row  : Next Key Share
+|  Sargable Index Predicate(s)
+|  |  Predicate Aggregation
+|  |  |  Group By
+|  |  |  Column Function(s)
+|  |  Insert Into Sorted Temp Table  ID = t1
+|  |  |  #Columns = 2
+|  |  |  #Sort Key Columns = 1
+|  |  |  |  Key 1: (Descending)
+|  |  |  Sortheap Allocation Parameters:
+|  |  |  |  #Rows     = 21.000000
+|  |  |  |  Row Width = 12
+|  |  |  Piped
+Aggregation Completion
+|  Group By
+|  Column Function(s)
+|  Residual Predicate(s)
+|  |  Sorted Temp Table Completion  ID = t1
+Sorted Temp Table Completion  ID = t1
+Access Temp Table  ID = t1
+|  #Columns = 2
+|  Relation Scan
+|  |  Prefetch: Eligible
+|  Sargable Predicate(s)
+|  |  Return Data to Application
+|  |  |  #Columns = 2
+Return Data Completion
+
+End of section
+
+
+Optimizer Plan:
+
+     Rows   
+   Operator 
+     (ID)   
+     Cost   
+           
+   20.9564 
+   RETURN  
+    ( 1)   
+   136.291 
+     |     
+   20.9564 
+   TBSCAN  
+    ( 2)   
+   136.291 
+     |     
+   20.9564 
+    SORT   
+    ( 3)   
+   136.289 
+     |     
+   20.9564 
+    GRPBY  
+    ( 4)   
+   136.282 
+     |     
+   2095.23 
+   IXSCAN  
+    ( 5)   
+   136.154 
+     |       
+ 9.99804e+06 
+ Index:      
+ STL         
+ PURCHASE_PK 
+
+
+
+==================== STATEMENT ==========================================
+
+Error compiling statement:
+
+SQL0104N  An unexpected token "END-OF-STATEMENT" was found following 
+"connect reset".  Expected tokens may include:  "JOIN <joined_table>".  
+SQLSTATE=42601
+
+
+Statement:
+  connect reset
+
+
+==================== STATEMENT ==========================================
+
+Error compiling statement:
+
+SQL0104N  An unexpected token "END-OF-STATEMENT" was found following 
+"terminate".  Expected tokens may include:  "JOIN <joined_table>".  
+SQLSTATE=42601
+
+
+Statement:
+  terminate
+
+

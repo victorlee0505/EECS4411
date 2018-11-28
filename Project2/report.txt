@@ -4,9 +4,16 @@ Group members:
 Ka Chun Lee :210087484 (prism: viclee)
 Bochao Wang:215237902 (prism: bochao)
 
-we used : STL
+we used : STL (all indexes are unclustered)
 
 
+Q2.
+
+
+Q3.
+
+
+Q4
 
 
 Q5. fiveA.sql: Purchase join Customer over cust# while aggregation key is on "qnty" which require fetching from data enties require sorting.
