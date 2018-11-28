@@ -1,0 +1,13 @@
+EECS 4411 Fall 2018 Project 2
+
+Group members:
+Ka Chun Lee :210087484 (prism: viclee)
+Bochao Wang:215237902 (prism: bochao)
+
+we used : STL
+
+
+
+
+Q5. fiveA.sql: Purchase join Customer over cust# while aggregation key is on "qnty" which require fetching from data enties require sorting.
+    fiveB.sql: Purchase join Customer over cust# while aggregation key is on "book#" which take advantage of existing index to count on the fly.
