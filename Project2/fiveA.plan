@@ -31,175 +31,103 @@ Statement:
 
 Statement:
   
-  select P.cust#, sum(P.qnty)as BOOK_OWNS 
+  select P.cust#, count(P.Book#)
   from stl.Purchase P 
-  where P.cust# between '1' and '20' 
-  group by P.cust# 
-  order by BOOK_OWNS DESC
+  group by P.cust#
 
 
 Section Code Page = 1208
 
-Estimated Cost = 1774.001709
-Estimated Cardinality = 20.956352
+Estimated Cost = 72605.648438
+Estimated Cardinality = 100000.000000
 
 Access Table Name = STL.PURCHASE  ID = 2,277
-|  Index Scan:  Name = STL.PURCHASE_PK  ID = 1
-|  |  Regular Index (Not Clustered)
-|  |  Index Columns:
-|  |  |  1: CUST# (Ascending)
-|  |  |  2: BOOK# (Ascending)
-|  |  |  3: WHEN (Ascending)
-|  #Columns = 0
+|  #Columns = 1
 |  Skip Inserted Rows
 |  Avoid Locking Committed Data
 |  Currently Committed for Cursor Stability
-|  #Key Columns = 1
-|  |  Start Key: Inclusive Value
-|  |  |  1: 1 
-|  |  Stop Key: Inclusive Value
-|  |  |  1: 20 
-|  Index-Only Access
-|  Index Prefetch: Sequential(17), Readahead
-|  Isolation Level: Uncommitted Read
+|  May participate in Scan Sharing structures
+|  Scan may start anywhere and wrap, for completion
+|  Fast scan, for purposes of scan sharing management
+|  Scan can be throttled in scan sharing management
+|  Relation Scan
+|  |  Prefetch: Eligible
 |  Lock Intents
-|  |  Table: Intent None
-|  |  Row  : None
-|  Sargable Index Predicate(s)
-|  |  Insert Into Integer Sorted Temp Table  ID = t1
-|  |  |  #Columns = 1
+|  |  Table: Intent Share
+|  |  Row  : Next Key Share
+|  Sargable Predicate(s)
+|  |  Hashed Partial Predicate Aggregation
+|  |  |  Group By
+|  |  |  Column Function(s)
+|  |  Insert Into Sorted Temp Table  ID = t1
+|  |  |  #Columns = 2
 |  |  |  #Sort Key Columns = 1
 |  |  |  |  Key 1: (Ascending)
 |  |  |  Sortheap Allocation Parameters:
-|  |  |  |  #Rows     = 2096.000000
-|  |  |  |  Row Width = 20
-|  |  |  Duplicate Elimination
-Integer Sorted Temp Table Completion  ID = t1
-List Prefetch Preparation
-|  Access Table Name = STL.PURCHASE  ID = 2,277
-|  |  #Columns = 2
-|  |  Skip Inserted Rows
-|  |  Avoid Locking Committed Data
-|  |  Currently Committed for Cursor Stability
-|  |  RID List Fetch Scan
-|  |  Fetch Using Prefetched List
-|  |  |  Prefetch: 1253 Pages
-|  |  Lock Intents
-|  |  |  Table: Intent Share
-|  |  |  Row  : Next Key Share
-|  |  Sargable Predicate(s)
-|  |  |  #Predicates = 2
-|  |  |  Hashed Partial Predicate Aggregation
-|  |  |  |  Group By
-|  |  |  |  Column Function(s)
-|  |  |  Insert Into Sorted Temp Table  ID = t2
-|  |  |  |  #Columns = 2
-|  |  |  |  #Sort Key Columns = 1
-|  |  |  |  |  Key 1: (Ascending)
-|  |  |  |  Sortheap Allocation Parameters:
-|  |  |  |  |  #Rows     = 21.000000
-|  |  |  |  |  Row Width = 13
-|  |  |  |  Piped
-|  |  |  |  Intermediate Aggregation
+|  |  |  |  #Rows     = 100000.000000
+|  |  |  |  Row Width = 12
+|  |  |  Piped
+|  |  |  Intermediate Aggregation
 Hashed Partial Aggregation Completion
 |  Group By
 |  Column Function(s)
 |  Residual Predicate(s)
-|  |  Sorted Temp Table Completion  ID = t2
-Sorted Temp Table Completion  ID = t2
-Access Temp Table  ID = t2
+|  |  Sorted Temp Table Completion  ID = t1
+Sorted Temp Table Completion  ID = t1
+Access Temp Table  ID = t1
 |  #Columns = 2
 |  Relation Scan
 |  |  Prefetch: Eligible
 Final Aggregation
 |  Group By
 |  Column Function(s)
-Insert Into Sorted Temp Table  ID = t3
+Return Data to Application
 |  #Columns = 2
-|  #Sort Key Columns = 1
-|  |  Key 1: (Descending)
-|  Sortheap Allocation Parameters:
-|  |  #Rows     = 21.000000
-|  |  Row Width = 12
-|  Piped
-Access Temp Table  ID = t3
-|  #Columns = 2
-|  Relation Scan
-|  |  Prefetch: Eligible
-|  Sargable Predicate(s)
-|  |  Return Data to Application
-|  |  |  #Columns = 2
-Return Data Completion
 
 End of section
 
 
 Optimizer Plan:
 
-            Rows   
-          Operator 
-            (ID)   
-            Cost   
-                  
-          20.9564 
-          RETURN  
-           ( 1)   
-           1774   
-            |     
-          20.9564 
-          TBSCAN  
-           ( 2)   
-           1774   
-            |     
-          20.9564 
-           SORT   
-           ( 3)   
-           1774   
-            |     
-          20.9564 
-           GRPBY  
-           ( 4)   
-          1773.99 
-            |     
-          20.9564 
-          TBSCAN  
-           ( 5)   
-          1773.99 
-            |     
-          20.9564 
-           SORT   
-           ( 6)   
-          1773.99 
-            |     
-          20.9564 
-          pGRPBY  
-           ( 7)   
-          1773.98 
-            |     
-          2095.23 
-           FETCH  
-           (--)   
-          1773.55 
-         /       \
-   2095.23  9.99804e+06 
-   RIDSCN   Table:      
-    ( 9)    STL         
-   136.765  PURCHASE    
+     Rows   
+   Operator 
+     (ID)   
+     Cost   
+           
+   100000  
+   RETURN  
+    ( 1)   
+   72605.6 
      |     
-   2095.23 
+   100000  
+    GRPBY  
+    ( 2)   
+   72595.1 
+     |     
+   100000  
+   TBSCAN  
+    ( 3)   
+   72589.1 
+     |     
+   100000  
     SORT   
-    (10)   
-   136.765 
+    ( 4)   
+   72583.2 
      |     
-   2095.23 
-   IXSCAN  
-    (11)   
-   136.154 
+   932577  
+   pGRPBY  
+    ( 5)   
+   71953.1 
      |       
  9.99804e+06 
- Index:      
+   TBSCAN    
+    ( 6)     
+   69918.7   
+     |       
+ 9.99804e+06 
+ Table:      
  STL         
- PURCHASE_PK 
+ PURCHASE    
 
 
 

@@ -1,10 +1,10 @@
 connect to STL;
 
-select P.cust#, count(P.book#) as TOTAL_BOOKS_OWN
-from stl.Purchase P, stl.Customer C
-where P.cust# = C.cust# and C.cust# ='1'
+select P.cust#, count(P.Book#)
+from stl.Purchase P
+where P.cust# between '1' and '10'
 group by P.cust#;
-
 
 connect reset;
 terminate;
+

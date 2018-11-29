@@ -31,17 +31,16 @@ Statement:
 
 Statement:
   
-  select P.cust#, count(P.book#)as BOOKS_OWN 
+  select P.cust#, count(P.Book#)
   from stl.Purchase P 
-  where P.cust# between '1' and '20' 
-  group by P.cust# 
-  order by BOOKS_OWN DESC
+  where P.cust# between '1' and '10' 
+  group by P.cust#
 
 
 Section Code Page = 1208
 
-Estimated Cost = 136.290985
-Estimated Cardinality = 20.956352
+Estimated Cost = 77.346893
+Estimated Cardinality = 10.893257
 
 Access Table Name = STL.PURCHASE  ID = 2,277
 |  Index Scan:  Name = STL.PURCHASE_PK  ID = 1
@@ -58,9 +57,9 @@ Access Table Name = STL.PURCHASE  ID = 2,277
 |  |  Start Key: Inclusive Value
 |  |  |  1: 1 
 |  |  Stop Key: Inclusive Value
-|  |  |  1: 20 
+|  |  |  1: 10 
 |  Index-Only Access
-|  Index Prefetch: Sequential(17), Readahead
+|  Index Prefetch: Sequential(9), Readahead
 |  Lock Intents
 |  |  Table: Intent Share
 |  |  Row  : Next Key Share
@@ -68,25 +67,12 @@ Access Table Name = STL.PURCHASE  ID = 2,277
 |  |  Predicate Aggregation
 |  |  |  Group By
 |  |  |  Column Function(s)
-|  |  Insert Into Sorted Temp Table  ID = t1
+|  |  Return Data to Application
 |  |  |  #Columns = 2
-|  |  |  #Sort Key Columns = 1
-|  |  |  |  Key 1: (Descending)
-|  |  |  Sortheap Allocation Parameters:
-|  |  |  |  #Rows     = 21.000000
-|  |  |  |  Row Width = 12
-|  |  |  Piped
 Aggregation Completion
 |  Group By
 |  Column Function(s)
 |  Residual Predicate(s)
-|  |  Sorted Temp Table Completion  ID = t1
-Sorted Temp Table Completion  ID = t1
-Access Temp Table  ID = t1
-|  #Columns = 2
-|  Relation Scan
-|  |  Prefetch: Eligible
-|  Sargable Predicate(s)
 |  |  Return Data to Application
 |  |  |  #Columns = 2
 Return Data Completion
@@ -101,30 +87,20 @@ Optimizer Plan:
      (ID)   
      Cost   
            
-   20.9564 
+   10.8933 
    RETURN  
     ( 1)   
-   136.291 
+   77.3469 
      |     
-   20.9564 
-   TBSCAN  
-    ( 2)   
-   136.291 
-     |     
-   20.9564 
-    SORT   
-    ( 3)   
-   136.289 
-     |     
-   20.9564 
+   10.8933 
     GRPBY  
-    ( 4)   
-   136.282 
+    ( 2)   
+   77.3456 
      |     
-   2095.23 
+   1089.11 
    IXSCAN  
-    ( 5)   
-   136.154 
+    ( 3)   
+   77.2792 
      |       
  9.99804e+06 
  Index:      
@@ -157,5 +133,4 @@ SQLSTATE=42601
 
 Statement:
   terminate
-
 

@@ -7,14 +7,34 @@ Bochao Wang:215237902 (prism: bochao)
 we used : STL (all indexes are unclustered)
 
 
-Q2.
+Q2. Different access path
+
+twoA.sql: We used only Purchase table to obtain qnty > 2 where no index is available, hence it requires a file scan to fetch record as our access path.
+
+twoB.sql: we used only purchase table to obtain "when", index is available and used as our access path. Result later join with Purchase table as a file scan to project cust#.
+
+hence, in this case we exploit where no index is available and force db2 to do table scan.
+
+Q3. Index nested loop (or not)
+
+threeA.sql: We only interested in all Purchase record on only book# for English book. We force Book table to do a file scan for language='English'. therefore, db2 chose to use P.book# index to match B.book# in English in INLJ style.
+
+threeB.sql: When project is involve non-indexed predicate, file scan is very likely on any tables which trigger costly sorting in order to perform hashjoin.
 
 
-Q3.
+Q4. Difference join order
+
+fourA.sql: Customer join Purcahse then join Book. We picked a tight selective on C.City = 'Toronto' which db2 used to reduce Purchase first.
+
+fourB.sql: Purchase join Book then Customer. We picked an extremely selective on B.Book# = 1 which db2 used to reduce Purchase first.
+
+hence db2 is picking lower join on higher selective predicates.
 
 
-Q4
+Q5. Aggregate on the fly
+
+fiveA.sql: Purchase on cust# while aggregation key is on "Book#" , although there is index available, This require the whole Purchase table, which db2 chose to do a table scan. Since it is unclustered, sorting is required on aggregation stage.
+
+fiveB.sql: Purchase on cust# while aggregation key is on "book#", this time the cust# is being selective enough where db2 evaluate index on cust# then book# is worth while, hence the final group on count is on the fly.
 
 
-Q5. fiveA.sql: Purchase join Customer over cust# while aggregation key is on "qnty" which require fetching from data enties require sorting.
-    fiveB.sql: Purchase join Customer over cust# while aggregation key is on "book#" which take advantage of existing index to count on the fly.
